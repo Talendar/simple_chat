@@ -28,6 +28,9 @@
 
             int send_msg(std::string msg);
             std::string receive_msg();
+
+            bool operator==(const Client& other) const;
+            bool operator!=(const Client& other) const;
     };
 
     /**

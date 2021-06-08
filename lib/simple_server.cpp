@@ -10,7 +10,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <iostream>
-#include<thread>
+#include <thread>
+#include <memory>
 
 
 /**
@@ -136,9 +137,21 @@ std::string Client::receive_msg() {
     // using its own buffer (allocated bellow), this routine should be thread-safe.
     // Source: https://stackoverflow.com/questions/1981372/are-parallel-calls-to-send-recv-on-the-same-socket-valid
 
-    char recv_buffer[this->recv_buffer_len];
+    char *recv_buffer = new char[this->recv_buffer_len];
     int in_len = recv(this->socketfd, recv_buffer, this->recv_buffer_len, 0);
     
     recv_buffer[in_len] = '\0';
-    return std::string(recv_buffer);
+
+    std::string msg(recv_buffer);
+    delete[] recv_buffer;
+
+    return msg;
+}
+
+bool Client::operator==(const Client& other) const {
+    return (socketfd == other.socketfd);
+}
+
+bool Client::operator!=(const Client& other) const {
+    return !(*this == other);
 }
