@@ -5,17 +5,19 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
+#include "lib/window.h"
 
 #define PORT 12345
 #define SERVER_ADDR "127.0.0.1"
 
+static Window win;
 
 void receive_msgs(int socketfd) {
     char msg_buffer[4096];
     while(true) {
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
         msg_buffer[msg_len] = '\0';
-        std::cout << msg_buffer << std::endl;
+        win.log_message(msg_buffer);
     }
 }
 
@@ -23,7 +25,8 @@ void receive_msgs(int socketfd) {
 void send_msgs(int socketfd) {
     std::string msg;
     while(true) {
-        std::getline(std::cin, msg);
+        win.clear_input();
+        msg = win.get_message();
         send(socketfd, msg.c_str(), msg.length(), 0);
     }
 }
