@@ -43,7 +43,7 @@
 
         public:
             SimpleServer(Protocol protocol, int port, int queue_len);
-            void run(void (*job)(Client*));
+            void run(void (*job)(int));
             void shutdown();
     };
 #endif

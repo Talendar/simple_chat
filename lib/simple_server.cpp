@@ -68,11 +68,8 @@ SimpleServer::SimpleServer(Protocol protocol,
 
 /**
  * TODO
- * 
- * Note: the caller is responsible for closing the connection with the client 
- * and for freeing the memory allocated by the object.
  */
-void SimpleServer::run(void (*job)(Client*)) {
+void SimpleServer::run(void (*job)(int)) {
     while(true) {
         // Accepting the first connection request on the queue:
         // (if the queue is empty, blocks the caller until a connection is present)
@@ -84,10 +81,8 @@ void SimpleServer::run(void (*job)(Client*)) {
             throw std::runtime_error(msg_stream.str());
         }
 
-        Client *client = new Client(client_socket);
-
         // Creating a new thread to execute the job:
-        std::thread job_thread(job, client);
+        std::thread job_thread(job, client_socket);
         job_thread.detach();
     }
 }
