@@ -51,7 +51,8 @@ std::string Window::get_message() {
 }
 
 void Window::log_message(const char *message) {
-    wprintw(msg_win, "%s", message);
+    wprintw(msg_win, "%s\n", message);
+    wrefresh(msg_win);
 }
 
 void Window::clear_input() {
