@@ -9,6 +9,7 @@
     namespace Color {
         // Foreground colors
         const std::string Reset        = "\x1b[0m";
+        const std::string Bold         = "\x1b[1m";
         const std::string Black        = "\x1b[30m";
         const std::string Red          = "\x1b[31m";
         const std::string Green        = "\x1b[32m";
