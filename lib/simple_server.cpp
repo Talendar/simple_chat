@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <iostream>
-#include<thread>
+#include <thread>
 
 
 /**
@@ -68,11 +68,8 @@ SimpleServer::SimpleServer(Protocol protocol,
 
 /**
  * TODO
- * 
- * Note: the caller is responsible for closing the connection with the client 
- * and for freeing the memory allocated by the object.
  */
-void SimpleServer::run(void (*job)(Client*)) {
+void SimpleServer::run(void (*job)(int)) {
     while(true) {
         // Accepting the first connection request on the queue:
         // (if the queue is empty, blocks the caller until a connection is present)
@@ -84,10 +81,8 @@ void SimpleServer::run(void (*job)(Client*)) {
             throw std::runtime_error(msg_stream.str());
         }
 
-        Client *client = new Client(client_socket);
-
         // Creating a new thread to execute the job:
-        std::thread job_thread(job, client);
+        std::thread job_thread(job, client_socket);
         job_thread.detach();
     }
 }
@@ -141,9 +136,21 @@ std::string Client::receive_msg() {
     // using its own buffer (allocated bellow), this routine should be thread-safe.
     // Source: https://stackoverflow.com/questions/1981372/are-parallel-calls-to-send-recv-on-the-same-socket-valid
 
-    char recv_buffer[this->recv_buffer_len];
+    char *recv_buffer = new char[this->recv_buffer_len];
     int in_len = recv(this->socketfd, recv_buffer, this->recv_buffer_len, 0);
     
     recv_buffer[in_len] = '\0';
-    return std::string(recv_buffer);
+
+    std::string msg(recv_buffer);
+    delete[] recv_buffer;
+
+    return msg;
+}
+
+bool Client::operator==(const Client& other) const {
+    return (socketfd == other.socketfd);
+}
+
+bool Client::operator!=(const Client& other) const {
+    return !(*this == other);
 }

@@ -28,6 +28,9 @@
 
             int send_msg(std::string msg);
             std::string receive_msg();
+
+            bool operator==(const Client& other) const;
+            bool operator!=(const Client& other) const;
     };
 
     /**
@@ -43,7 +46,7 @@
 
         public:
             SimpleServer(Protocol protocol, int port, int queue_len);
-            void run(void (*job)(Client*));
+            void run(void (*job)(int));
             void shutdown();
     };
 #endif
