@@ -5,7 +5,7 @@
 
     class Window {
         private:
-            WINDOW *msg_win;
+            WINDOW *msg_win,*msg_win_box;
             WINDOW *input_win;
         public:
             Window();

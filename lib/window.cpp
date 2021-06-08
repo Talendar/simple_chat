@@ -12,13 +12,17 @@ Window::Window() {
     int width, height;
     getmaxyx(stdscr, height, width);
 
-    // Set message log window
-    msg_win = newwin(height-INPUT_WIN_H, width, 0, 0);
+    // Set message log window box
+    msg_win_box = newwin(height-INPUT_WIN_H, width, 0, 0);
     refresh();
 
     // Set message box in window
-    box(msg_win, 0, 0);
-    wrefresh(msg_win);
+    box(msg_win_box, 0, 0);
+    wrefresh(msg_win_box);
+
+    // Set message log window 
+    msg_win = subwin(msg_win_box,height-INPUT_WIN_H-2,width-2,1,1);
+    scrollok(msg_win,true);
 
     // Set input window
     input_win = newwin(INPUT_WIN_H, width, height-INPUT_WIN_H, 0);
