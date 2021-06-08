@@ -7,10 +7,10 @@ OBJ_PATH = ./obj
 
 # Tasks
 server:
-	$(SERVER_BIN)
+	$(BIN)/server
 
 client:
-	$(CLIENT_BIN)
+	$(BIN)/client
 
 all: clean server.o client.o simple_server.o
 	mkdir -p $(BIN) $(OBJ_PATH)
