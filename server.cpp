@@ -1,51 +1,108 @@
 #include <iostream>
-#include <vector>
+#include <map>
 #include <sstream>
+#include <thread>
 #include "lib/simple_server.h"
+#include "lib/color.h"
 
 #define PORT 12345
 #define CONNECTION_QUEUE_LEN 10
 
+#define SERVER_TAG Color::Bold + Color::Yellow + "[Server]" + Color::Reset
+#define LOG_TAG Color::Bold + Color::Red + "[LOG]" + Color::Reset
+#define MSG_TAG Color::Bold + Color::Cyan + "[MSG]" + Color::Reset
 
-std::vector<Client> clients;
+std::mutex clients_mutex;
+std::map<int, Client> clients;
 
+
+/**
+ * Sends a message to all the clients, excluding the one with the specified
+ * file descriptor (handle for the socket). Thread-safe.
+ */
+void server_broadcast(std::string msg, int exclude_fd) {
+    clients_mutex.lock();
+    for (auto const& it : clients) {
+        int client_fd = it.first;
+        if(client_fd != exclude_fd) {
+            Client client = it.second;
+            client.send_msg(msg);
+        }
+    }
+    clients_mutex.unlock();
+}
+
+
+/**
+ * Main function. Starts the server.
+ */
 int main(void) {
     SimpleServer server(Protocol::TCP, PORT, CONNECTION_QUEUE_LEN);
+    std::cout << LOG_TAG << " The server is online!" << std::endl
+              << LOG_TAG << " Listening to port " << PORT << std::endl;
 
-    server.run([](int client_socket) {
-        std::cout << "[LOG] New client!" << std::endl;
+    server.run([](int client_socketfd) {
+        std::cout << LOG_TAG << " New client!" << std::endl;
 
-        // Create new client
-        Client client(client_socket);
+        // Creating a new client object:
+        Client client(client_socketfd);
 
-        // Welcoming the new client:
-        client.send_msg("[Server] You're online! What's your username?");
+        // Welcoming the new client and receiving an username:
+        client.send_msg(SERVER_TAG + " You're online! What's your username?");
 
-        // Receiving an username:
         std::string username = client.receive_msg();
+        std::string username_bold = Color::Bold + username + Color::Reset;
+        std::string user_tag = Color::Green + Color::Bold + "[" + username + "]" + Color::Reset;
 
-        // Adding the client to the clients list:
-        clients.push_back(client);
+        // Adding the client to the clients dictionary:
+        clients_mutex.lock();
+        clients.insert(std::pair<int, Client>(client_socketfd, client));
+        clients_mutex.unlock();
 
-        // Client interaction:
-        std::cout << "[LOG] Starting interaction with " << username << std::endl;
+        // Announcing the new client:
+        server_broadcast(SERVER_TAG + " User " + username_bold + " "
+                         + Color::Green + "connected" + Color::Reset
+                         + " to the chat!", client_socketfd);
+        std::cout << LOG_TAG << " Starting interaction with "
+                  << username_bold << std::endl
+                  << LOG_TAG << " Online users: " << clients.size() << std::endl;
+        
+        // Starting main interaction with the client:
         while(true) {
             // Receiving a message:
             std::string received_msg = client.receive_msg();
-            std::string msg = "[" + username + "] " + received_msg;
 
-            // Logging the message
-            std::cout << "[MSG]" << msg << std::endl;
+            // Checking if the message is valid:
+            // (empty messages mean that the client has disconnected)
+            if(received_msg.length() == 0) {
+                // Removing the client from the list and breaking from the
+                // interaction loop
+                clients_mutex.lock();
+                clients.erase(clients.find(client_socketfd));
+                clients_mutex.unlock();
+                break;
+            }
+
+            // Formatting and logging the message
+            std::string msg = user_tag + " " + received_msg;
+            std::cout << MSG_TAG << msg << std::endl;
 
             // Sending the message to the other clients:
-            for(Client& c: clients) {
-                if(c != client)
-                    c.send_msg(msg);
-            }
+            server_broadcast(msg, client_socketfd);
         }
 
         // Closing the connection
         client.close_connection();
+
+        // Announcing the client's disconnection:
+        server_broadcast(SERVER_TAG + " User " + username_bold
+                         + Color::Red + "disconnected" + Color::Reset
+                         + " from the chat!", client_socketfd);
+
+        std::cout << LOG_TAG << " User " << username_bold << " "
+                  << Color::Red + "disconnected" + Color::Reset
+                  << " from the server." << std::endl
+                  << LOG_TAG << " Online users: " << clients.size() << std::endl;
     });
 
     server.shutdown();

@@ -10,16 +10,29 @@
 #define SERVER_ADDR "127.0.0.1"
 
 
+/**
+ * Receives and prints messages from the server until the program is stopped or
+ * the connection with the server is closed.
+ */
 void receive_msgs(int socketfd) {
     char msg_buffer[4096];
     while(true) {
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
+        if(msg_len == 0) {
+            std::cout << ">> Connection closed by the server. "
+                      << "Please try again later." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
         msg_buffer[msg_len] = '\0';
         std::cout << msg_buffer << std::endl;
     }
 }
 
 
+/**
+ * Sends a message to the server.
+ */
 void send_msgs(int socketfd) {
     std::string msg;
     while(true) {
@@ -29,8 +42,11 @@ void send_msgs(int socketfd) {
 }
 
 
+/**
+ * Main function. Connects to the server.
+ */
 int main(void) {
-    // Creating new IPv4 TCP socket:
+    // Creating new IPv4 TCP socket to communicate with the server:
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(socketfd == -1) {
         std::cerr << "Error creating the socket: "
