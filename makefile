@@ -1,7 +1,6 @@
 # Settings
 FLAGS = -lstdc++ -std=c++11 -Wall -g -pthread
-SERVER_BIN = ./bin/server
-CLIENT_BIN = ./bin/client
+BIN = ./bin
 LIB_PATH = ./lib
 OBJ_PATH = ./obj
 
@@ -14,8 +13,9 @@ client:
 	$(CLIENT_BIN)
 
 all: clean server.o client.o simple_server.o
-	gcc server.o simple_server.o -o $(SERVER_BIN) $(FLAGS)
-	gcc client.o -o $(CLIENT_BIN) $(FLAGS)
+	mkdir -p $(BIN) $(OBJ_PATH)
+	gcc server.o simple_server.o -o $(BIN)/server $(FLAGS)
+	gcc client.o -o $(BIN)/client $(FLAGS)
 	mv *.o $(OBJ_PATH)
 
 server.o: server.cpp
@@ -28,4 +28,4 @@ client.o: client.cpp
 	gcc -c client.cpp
 
 clean:
-	rm -rf $(OBJ_PATH)/*.o $(SERVER_BIN) $(CLIENT_BIN)
+	rm -rf $(BIN) $(OBJ_PATH)
