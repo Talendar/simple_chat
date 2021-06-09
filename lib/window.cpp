@@ -14,28 +14,27 @@ Window::Window() {
 
     // Set message log window box
     msg_win_box = newwin(height-INPUT_WIN_H, width, 0, 0);
-    refresh();
 
     // Set message box in window
     box(msg_win_box, 0, 0);
-    wrefresh(msg_win_box);
 
     // Set message log window 
     msg_win = subwin(msg_win_box,height-INPUT_WIN_H-2,width-2,1,1);
     scrollok(msg_win,true);
-    wrefresh(msg_win);
 
     // Set message log window box
     input_win_box = newwin(INPUT_WIN_H, width, height-INPUT_WIN_H, 0);
 
     // Set message box in window
     box(input_win_box, 0, 0);
-    wrefresh(input_win_box);
 
     // Set input window
     input_win = subwin(input_win_box, INPUT_WIN_H-2, width-2, height-INPUT_WIN_H+1, 1);
     scrollok(input_win,true);
     refresh();
+    wrefresh(msg_win_box);
+    wrefresh(msg_win);
+    wrefresh(input_win_box);
     wrefresh(input_win);
 }
 

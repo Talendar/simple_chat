@@ -1,4 +1,4 @@
-#include <iostream>
+//#include <iostream>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,7 +10,7 @@
 #define PORT 12345
 #define SERVER_ADDR "127.0.0.1"
 
-static Window win;
+Window win;
 
 /**
  * Receives and prints messages from the server until the program is stopped or
@@ -21,8 +21,8 @@ void receive_msgs(int socketfd) {
     while(true) {
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
         if(msg_len == 0) {
-            std::cout << ">> Connection closed by the server. "
-                      << "Please try again later." << std::endl;
+            //std::cout << ">> Connection closed by the server. "
+            //          << "Please try again later." << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -49,11 +49,12 @@ void send_msgs(int socketfd) {
  * Main function. Connects to the server.
  */
 int main(void) {
+    win = Window();
     // Creating new IPv4 TCP socket to communicate with the server:
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(socketfd == -1) {
-        std::cerr << "Error creating the socket: "
-                  << strerror(errno) << std::endl;
+        //std::cerr << "Error creating the socket: "
+        //          << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -65,8 +66,8 @@ int main(void) {
 
     // Connecting to the server:
     if(connect(socketfd, (struct sockaddr*)&socket_addr, sizeof(socket_addr)) == -1) {
-        std::cerr << "Error connecting to the server (" << SERVER_ADDR << ":"
-                  << PORT << "): " << ": " << strerror(errno) << std::endl;
+        //std::cerr << "Error connecting to the server (" << SERVER_ADDR << ":"
+        //          << PORT << "): " << ": " << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
