@@ -38,9 +38,9 @@ void receive_msgs(int socketfd) {
 void send_msgs(int socketfd) {
     std::string msg;
     while(true) {
-        win.clear_input();
         msg = win.get_message();
         send(socketfd, msg.c_str(), msg.length(), 0);
+        win.clear_input();
     }
 }
 
