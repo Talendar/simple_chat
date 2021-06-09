@@ -1,4 +1,4 @@
-//#include <iostream>
+#include <iostream>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -53,8 +53,8 @@ int main(void) {
     // Creating new IPv4 TCP socket to communicate with the server:
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(socketfd == -1) {
-        //std::cerr << "Error creating the socket: "
-        //          << strerror(errno) << std::endl;
+        std::cerr << "Error creating the socket: "
+                  << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -66,8 +66,8 @@ int main(void) {
 
     // Connecting to the server:
     if(connect(socketfd, (struct sockaddr*)&socket_addr, sizeof(socket_addr)) == -1) {
-        //std::cerr << "Error connecting to the server (" << SERVER_ADDR << ":"
-        //          << PORT << "): " << ": " << strerror(errno) << std::endl;
+        std::cerr << "Error connecting to the server (" << SERVER_ADDR << ":"
+                  << PORT << "): " << ": " << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
