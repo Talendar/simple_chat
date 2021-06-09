@@ -23,14 +23,19 @@ Window::Window() {
     // Set message log window 
     msg_win = subwin(msg_win_box,height-INPUT_WIN_H-2,width-2,1,1);
     scrollok(msg_win,true);
+    wrefresh(msg_win);
+
+    // Set message log window box
+    input_win_box = newwin(INPUT_WIN_H, width, height-INPUT_WIN_H, 0);
+
+    // Set message box in window
+    box(input_win_box, 0, 0);
+    wrefresh(input_win_box);
 
     // Set input window
-    input_win = newwin(INPUT_WIN_H, width, height-INPUT_WIN_H, 0);
+    input_win = subwin(input_win_box, INPUT_WIN_H-2, width-2, height-INPUT_WIN_H+1, 1);
+    scrollok(input_win,true);
     refresh();
-    wrefresh(input_win);
-
-    // Set input box in window
-    box(input_win, 0, 0);
     wrefresh(input_win);
 }
 
@@ -41,6 +46,7 @@ Window::~Window() {
 std::string Window::get_message() {
     std::string message;
     char c;
+    // Display typed characters
     while((c = wgetch(input_win)) != '\n') {
         // Avoid backspace
         if(c != '\b' && c != 127)
@@ -49,7 +55,11 @@ std::string Window::get_message() {
             message.pop_back();
             clear_input();
         }
-        mvwprintw(input_win, 1, 1, "%s", message.c_str());
+        mvwprintw(input_win, 0, 0, "%s", message.c_str());
+    }
+    // Check if there's an escape code
+    if(message.find('\x1b') != std::string::npos) {
+        return std::string();
     }
     return message;
 }
@@ -61,6 +71,5 @@ void Window::log_message(const char *message) {
 
 void Window::clear_input() {
     wclear(input_win);
-    box(input_win, 0, 0);
     wrefresh(input_win);
 }

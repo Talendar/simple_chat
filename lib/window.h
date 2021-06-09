@@ -6,7 +6,7 @@
     class Window {
         private:
             WINDOW *msg_win,*msg_win_box;
-            WINDOW *input_win;
+            WINDOW *input_win, *input_win_box;
         public:
             Window();
             ~Window();
