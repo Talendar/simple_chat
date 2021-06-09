@@ -3,14 +3,13 @@
 #include <sstream>
 #include <thread>
 #include "lib/simple_server.h"
-#include "lib/color.h"
 
 #define PORT 12345
 #define CONNECTION_QUEUE_LEN 10
 
-#define SERVER_TAG Color::Bold + Color::Yellow + "[Server]" + Color::Reset
-#define LOG_TAG Color::Bold + Color::Red + "[LOG]" + Color::Reset
-#define MSG_TAG Color::Bold + Color::Cyan + "[MSG]" + Color::Reset
+#define SERVER_TAG std::string("[Server]")
+#define LOG_TAG std::string("[LOG]")
+#define MSG_TAG std::string("[MSG]")
 
 std::mutex clients_mutex;
 std::map<int, Client> clients;
@@ -51,8 +50,7 @@ int main(void) {
         client.send_msg(SERVER_TAG + " You're online! What's your username?");
 
         std::string username = client.receive_msg();
-        std::string username_bold = Color::Bold + username + Color::Reset;
-        std::string user_tag = Color::Green + Color::Bold + "[" + username + "]" + Color::Reset;
+        std::string user_tag = "[" + username + "]";
 
         // Adding the client to the clients dictionary:
         clients_mutex.lock();
@@ -60,11 +58,10 @@ int main(void) {
         clients_mutex.unlock();
 
         // Announcing the new client:
-        server_broadcast(SERVER_TAG + " User " + username_bold + " "
-                         + Color::Green + "connected" + Color::Reset
-                         + " to the chat!", client_socketfd);
+        server_broadcast(SERVER_TAG + " User " + username + " " + 
+                  "connected" + " to the chat!", client_socketfd);
         std::cout << LOG_TAG << " Starting interaction with "
-                  << username_bold << std::endl
+                  << username << std::endl
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
         
         // Starting main interaction with the client:
@@ -95,13 +92,11 @@ int main(void) {
         client.close_connection();
 
         // Announcing the client's disconnection:
-        server_broadcast(SERVER_TAG + " User " + username_bold
-                         + Color::Red + "disconnected" + Color::Reset
+        server_broadcast(SERVER_TAG + " User " + username + "disconnected"
                          + " from the chat!", client_socketfd);
 
-        std::cout << LOG_TAG << " User " << username_bold << " "
-                  << Color::Red + "disconnected" + Color::Reset
-                  << " from the server." << std::endl
+        std::cout << LOG_TAG << " User " << username
+                  << " disconnected from the server." << std::endl
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
     });
 

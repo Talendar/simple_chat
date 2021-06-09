@@ -5,10 +5,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
+#include "lib/window.h"
 
 #define PORT 12345
 #define SERVER_ADDR "127.0.0.1"
 
+Window win;
 
 /**
  * Receives and prints messages from the server until the program is stopped or
@@ -19,13 +21,13 @@ void receive_msgs(int socketfd) {
     while(true) {
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
         if(msg_len == 0) {
-            std::cout << ">> Connection closed by the server. "
-                      << "Please try again later." << std::endl;
+            //std::cout << ">> Connection closed by the server. "
+            //          << "Please try again later." << std::endl;
             exit(EXIT_FAILURE);
         }
 
         msg_buffer[msg_len] = '\0';
-        std::cout << msg_buffer << std::endl;
+        win.log_message(msg_buffer);
     }
 }
 
@@ -36,8 +38,11 @@ void receive_msgs(int socketfd) {
 void send_msgs(int socketfd) {
     std::string msg;
     while(true) {
-        std::getline(std::cin, msg);
+        msg = win.get_message();
         send(socketfd, msg.c_str(), msg.length(), 0);
+        if(msg.length() > 0)
+            win.log_message((std::string("[Me] ") + msg).c_str());
+        win.clear_input();
     }
 }
 
@@ -46,6 +51,7 @@ void send_msgs(int socketfd) {
  * Main function. Connects to the server.
  */
 int main(void) {
+    win = Window();
     // Creating new IPv4 TCP socket to communicate with the server:
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(socketfd == -1) {
