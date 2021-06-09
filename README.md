@@ -17,6 +17,12 @@ Simple implementation of a chat using sockets. Work in progress.
 
 ## Instructions
 
+Install ncurses:
+
+```
+sudo apt install ncurses-dev
+```
+
 Compiling everything:
 
 ```
