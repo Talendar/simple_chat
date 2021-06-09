@@ -40,6 +40,8 @@ void send_msgs(int socketfd) {
     while(true) {
         msg = win.get_message();
         send(socketfd, msg.c_str(), msg.length(), 0);
+        if(msg.length() > 0)
+            win.log_message((std::string("[Me] ") + msg).c_str());
         win.clear_input();
     }
 }
