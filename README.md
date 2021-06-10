@@ -35,9 +35,21 @@ Starting the server:
 ```
 make server
 ```
+
+To close the server just type:
+
+```
+exit
+```
 	
 Starting a client:
 
 ```
 make client
+```
+
+To close the application as a client just type:
+
+```
+\exit
 ```
