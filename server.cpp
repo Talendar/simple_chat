@@ -40,7 +40,7 @@ int main(void) {
     std::cout << LOG_TAG << " The server is online!" << std::endl
               << LOG_TAG << " Listening to port " << PORT << std::endl;
 
-    server.run([](int client_socketfd) {
+    server.run([&server](int client_socketfd) {
         std::cout << LOG_TAG << " New client!" << std::endl;
 
         // Creating a new client object:
@@ -65,7 +65,7 @@ int main(void) {
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
         
         // Starting main interaction with the client:
-        while(true) {
+        while(server.is_running()) {
             // Receiving a message:
             std::string received_msg = client.receive_msg();
 
@@ -100,6 +100,7 @@ int main(void) {
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
     });
 
-    server.shutdown();
+    std::cout << SERVER_TAG << "Closing the server..." << std::endl;
+
     return 0;
 }
