@@ -43,6 +43,13 @@ void receive_msgs(int socketfd) {
  */
 void send_msgs(int socketfd) {
     std::string msg;
+
+    // Log on server with an username
+    msg = win.get_message();
+    send(socketfd, msg.c_str(), msg.length(), 0);
+    win.clear_input();
+
+    // Start chat
     while(running) {
         msg = win.get_message();
         if(msg.length() == 0) {
