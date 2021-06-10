@@ -3,13 +3,14 @@
 #include <sstream>
 #include <thread>
 #include "lib/simple_server.h"
+#include "lib/color.h"
 
 #define PORT 12345
 #define CONNECTION_QUEUE_LEN 10
 
-#define SERVER_TAG std::string("[Server]")
-#define LOG_TAG std::string("[LOG]")
-#define MSG_TAG std::string("[MSG]")
+#define SERVER_TAG Color::Bold + Color::Yellow + "[Server]" + Color::Reset
+#define LOG_TAG Color::Bold + Color::Red + "[LOG]" + Color::Reset
+#define MSG_TAG Color::Bold + Color::Cyan + "[MSG]" + Color::Reset
 
 std::mutex clients_mutex;
 std::map<int, Client> clients;
@@ -47,7 +48,7 @@ int main(void) {
         Client client(client_socketfd);
 
         // Welcoming the new client and receiving an username:
-        client.send_msg(SERVER_TAG + " You're online! What's your username?");
+        client.send_msg("[Server] You're online! What's your username?");
 
         std::string username = client.receive_msg();
         std::string user_tag = "[" + username + "]";
@@ -58,7 +59,7 @@ int main(void) {
         clients_mutex.unlock();
 
         // Announcing the new client:
-        server_broadcast(SERVER_TAG + " User " + username + " " + 
+        server_broadcast("[Server] User " + username + " " + 
                   "connected" + " to the chat!", client_socketfd);
         std::cout << LOG_TAG << " Starting interaction with "
                   << username << std::endl
@@ -92,15 +93,16 @@ int main(void) {
         client.close_connection();
 
         // Announcing the client's disconnection:
-        server_broadcast(SERVER_TAG + " User " + username + "disconnected"
+        server_broadcast("[Server] User " + username + "disconnected"
                          + " from the chat!", client_socketfd);
 
-        std::cout << LOG_TAG << " User " << username
-                  << " disconnected from the server." << std::endl
+        std::cout << LOG_TAG << " User " << username << " "
+                  << Color::Red + "disconnected" + Color::Reset
+                  << " from the server." << std::endl
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
     });
 
-    std::cout << SERVER_TAG << "Closing the server..." << std::endl;
+    std::cout << SERVER_TAG << " Closing the server..." << std::endl;
 
     return 0;
 }
