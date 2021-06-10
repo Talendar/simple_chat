@@ -1,5 +1,4 @@
 ## Info
-* Repository link: https://github.com/Talendar/simple_chat
 * Linux version: Ubuntu 20.04.2 LTS 
 * Compiler version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
 
