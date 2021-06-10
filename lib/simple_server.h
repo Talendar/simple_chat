@@ -8,6 +8,7 @@
     #include <atomic>
     #include <string>
     #include <mutex>
+    #include <functional>
 
     /**
      * TODO
@@ -43,10 +44,12 @@
             const int port;
             const int queue_len;
             int socketfd;
+            std::atomic<bool> running;
 
         public:
             SimpleServer(Protocol protocol, int port, int queue_len);
-            void run(void (*job)(int));
+            void run(std::function<void(int)> job);
             void shutdown();
+            bool is_running();
     };
 #endif

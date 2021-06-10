@@ -18,8 +18,8 @@
  */
 SimpleServer::SimpleServer(Protocol protocol,
                            int port,
-                           int queue_len) : protocol(protocol),
-                                            port(port), queue_len(queue_len) {
+                           int queue_len) : protocol(protocol), port(port),
+                                            queue_len(queue_len), running(true) {
     // Determining the protocol type:
     int socket_type = (this->protocol == Protocol::TCP) ? SOCK_STREAM : SOCK_DGRAM;
 
@@ -69,12 +69,29 @@ SimpleServer::SimpleServer(Protocol protocol,
 /**
  * TODO
  */
-void SimpleServer::run(void (*job)(int)) {
-    while(true) {
+void SimpleServer::run(std::function<void(int)> job) {
+    // Create thread to get input from server user
+    std::thread input_thread([&](){
+        std::string input_string;
+        do {
+            std::cin >> input_string;
+        } while(running && input_string != "exit");
+        if(running) {
+            shutdown();
+        }
+    });
+
+    // Get connections and create threads
+    while(running) {
         // Accepting the first connection request on the queue:
         // (if the queue is empty, blocks the caller until a connection is present)
         int client_socket = accept(this->socketfd, 0, 0);
         if(client_socket == -1) {
+            // Check if server was closed properly
+            if(!running) {
+                break;
+            }
+
             std::ostringstream msg_stream;
             msg_stream << "Error accepting a new connection: " 
                     << strerror(errno) << std::endl;
@@ -85,16 +102,29 @@ void SimpleServer::run(void (*job)(int)) {
         std::thread job_thread(job, client_socket);
         job_thread.detach();
     }
+
+    input_thread.join();
 }
 
 
 /**
- * TODO
+ * Shutdown the server and close the socket
  */
 void SimpleServer::shutdown() {
+    this->running = false;
+    // Call shutdown from the socket standard library
+    ::shutdown(this->socketfd, SHUT_RDWR);
     close(this->socketfd);
 }
 
+/**
+ * Return whether the server is running or not
+ * 
+ * Note: thread-safe
+ */
+bool SimpleServer::is_running() {
+    return running;
+}
 
 /**
  * TODO
@@ -104,7 +134,7 @@ Client::Client(int socketfd, int recv_buffer_len) : socketfd(socketfd),
 
 
 /**
- * TODO
+ * Close client connection
  */
 void Client::close_connection() {
     close(this->socketfd);
@@ -112,7 +142,7 @@ void Client::close_connection() {
 
 
 /**
- * TODO
+ * Send message to client
  * 
  * Note: thread-safe.
  */
@@ -127,7 +157,7 @@ int Client::send_msg(std::string msg) {
 
 
 /**
- * TODO
+ * Receive message from client
  * 
  * Note: thread-safe.
  */
