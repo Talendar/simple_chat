@@ -31,6 +31,8 @@ Window::Window() {
     // Set input window
     input_win = subwin(input_win_box, INPUT_WIN_H-2, width-2, height-INPUT_WIN_H+1, 1);
     scrollok(input_win,true);
+
+    // Refresh everything
     refresh();
     wrefresh(msg_win_box);
     wrefresh(msg_win);
@@ -39,9 +41,21 @@ Window::Window() {
 }
 
 Window::~Window() {
+    // Clear screen
+    clear();
+    refresh();
+
+    // End all ncurses elements
+    delwin(msg_win);
+    delwin(msg_win_box);
+    delwin(input_win);
+    delwin(input_win_box);
     endwin();
 }
 
+/**
+ * Get message from input and shows on input window
+ */
 std::string Window::get_message() {
     std::string message;
     char c;
@@ -50,25 +64,42 @@ std::string Window::get_message() {
         // Avoid backspace
         if(c != '\b' && c != 127)
             message += c;
+        // If it's a backspace and there's characters to delete
         else if(message.length() > 0){
+            // Delete last character
             message.pop_back();
             clear_input();
         }
+        // Print characters typed on window
         mvwprintw(input_win, 0, 0, "%s", message.c_str());
     }
-    // Check if there's an escape code
+    // Check if there's an escape code to avoid breaking ncurses
     if(message.find('\x1b') != std::string::npos) {
         return std::string();
     }
     return message;
 }
 
+/**
+ * Log message into message window
+ * 
+ * Note: thread-safe
+ */
 void Window::log_message(const char *message) {
+    msg_lock.lock();
+    // Print message
     wprintw(msg_win, "%s\n", message);
+    // Refresh input window
     wrefresh(msg_win);
+    msg_lock.unlock();
 }
 
+/**
+ * Clear input window content
+ */
 void Window::clear_input() {
+    // Clear input window
     wclear(input_win);
+    // Refresh input window
     wrefresh(input_win);
 }
