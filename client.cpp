@@ -21,13 +21,13 @@ std::atomic<bool> running(true);
 void receive_msgs(int socketfd) {
     char msg_buffer[4096];
     while(running) {
-        // Try to get a message from server
+        // Trying to get a message from the server:
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
         if(msg_len <= 0) {
-            // Check if it failed during execution
+            // Checking for failure:
             if(running) {
                 std::cerr << ">> Connection closed by the server. "
-                        << "Please try again later." << std::endl;
+                          << "Please try again later." << std::endl;
                 exit(EXIT_FAILURE);
             } else {
                 // If it's not running, then it's just a shutdown command
@@ -43,17 +43,17 @@ void receive_msgs(int socketfd) {
 
 
 /**
- * Sends a message to the server.
+ * Reads messages from the user and sends them to the server.
  */
 void send_msgs(int socketfd) {
     std::string msg;
 
-    // Log on server with an username
+    // Logging in the server with an username:
     msg = win.get_message();
     send(socketfd, msg.c_str(), msg.length(), 0);
     win.clear_input();
 
-    // Start chat
+    // Starting the chat:
     while(running) {
         msg = win.get_message();
         if(msg.length() == 0) {
@@ -61,17 +61,18 @@ void send_msgs(int socketfd) {
             continue;
         }
 
-        // Check if it's not a command
+        // Checking if it's not a command:
         if(msg[0] != '\\') {
             send(socketfd, msg.c_str(), msg.length(), 0);
             win.log_message((std::string("[Me] ") + msg).c_str());
         } else if(msg == "\\exit") {
-            // Close the connection
+            // Closing the connection
             shutdown(socketfd, SHUT_RDWR);
             close(socketfd);
             running = false;;
         }
-        // Clear input window after sending message
+
+        // Clearing the input window after sending a message
         win.clear_input();
     }
 }

@@ -60,12 +60,12 @@ int main(void) {
 
         // Announcing the new client:
         server_broadcast("[Server] User " + username + " " + 
-                  "connected" + " to the chat!", client_socketfd);
+                         "connected" + " to the chat!", client_socketfd);
         std::cout << LOG_TAG << " Starting interaction with "
                   << username << std::endl
                   << LOG_TAG << " Online users: " << clients.size() << std::endl;
         
-        // Starting main interaction with the client:
+        // Starting the main interaction with the client:
         while(server.is_running()) {
             // Receiving a message:
             std::string received_msg = client.receive_msg();
