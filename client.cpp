@@ -21,17 +21,21 @@ std::atomic<bool> running(true);
 void receive_msgs(int socketfd) {
     char msg_buffer[4096];
     while(running) {
+        // Try to get a message from server
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
         if(msg_len <= 0) {
+            // Check if it failed during execution
             if(running) {
                 std::cerr << ">> Connection closed by the server. "
                         << "Please try again later." << std::endl;
                 exit(EXIT_FAILURE);
             } else {
+                // If it's not running, then it's just a shutdown command
                 break;
             }
         }
 
+        // Log message
         msg_buffer[msg_len] = '\0';
         win.log_message(msg_buffer);
     }
