@@ -1,9 +1,10 @@
+## Simple chat
+Simple implementation of a chat using sockets.
+
+
 ## Info
 * Linux version: Ubuntu 20.04.2 LTS 
 * Compiler version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
-
-## Simple chat
-Simple implementation of a chat using sockets. Work in progress.
 
 
 ## Instructions
