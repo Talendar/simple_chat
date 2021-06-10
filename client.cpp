@@ -5,12 +5,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
+#include <atomic>
 #include "lib/window.h"
 
 #define PORT 12345
 #define SERVER_ADDR "127.0.0.1"
 
 Window win;
+std::atomic<bool> running(true);
 
 /**
  * Receives and prints messages from the server until the program is stopped or
@@ -18,12 +20,16 @@ Window win;
  */
 void receive_msgs(int socketfd) {
     char msg_buffer[4096];
-    while(true) {
+    while(running) {
         int msg_len = recv(socketfd, msg_buffer, 4096, 0);
-        if(msg_len == 0) {
-            //std::cout << ">> Connection closed by the server. "
-            //          << "Please try again later." << std::endl;
-            exit(EXIT_FAILURE);
+        if(msg_len <= 0) {
+            if(running) {
+                std::cerr << ">> Connection closed by the server. "
+                        << "Please try again later." << std::endl;
+                exit(EXIT_FAILURE);
+            } else {
+                break;
+            }
         }
 
         msg_buffer[msg_len] = '\0';
@@ -37,11 +43,24 @@ void receive_msgs(int socketfd) {
  */
 void send_msgs(int socketfd) {
     std::string msg;
-    while(true) {
+    while(running) {
         msg = win.get_message();
-        send(socketfd, msg.c_str(), msg.length(), 0);
-        if(msg.length() > 0)
+        if(msg.length() == 0) {
+            // Don't send empty messages
+            continue;
+        }
+
+        // Check if it's not a command
+        if(msg[0] != '\\') {
+            send(socketfd, msg.c_str(), msg.length(), 0);
             win.log_message((std::string("[Me] ") + msg).c_str());
+        } else if(msg == "\\exit") {
+            // Close the connection
+            shutdown(socketfd, SHUT_RDWR);
+            close(socketfd);
+            running = false;;
+        }
+        // Clear input window after sending message
         win.clear_input();
     }
 }
@@ -51,7 +70,6 @@ void send_msgs(int socketfd) {
  * Main function. Connects to the server.
  */
 int main(void) {
-    win = Window();
     // Creating new IPv4 TCP socket to communicate with the server:
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(socketfd == -1) {
@@ -76,12 +94,9 @@ int main(void) {
     // Sending and receiving data:
     std::thread msg_receiver(receive_msgs, socketfd);
     std::thread msg_sender(send_msgs, socketfd);
-
+    
     msg_receiver.join();
     msg_sender.join();
-
-    // Closing the connection:
-    close(socketfd);
 
     return 0;
 }
