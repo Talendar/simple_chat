@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <thread>
 #include <atomic>
+#include "lib/color.h"
 #include "lib/window.h"
 
 #define PORT 12345
@@ -64,9 +65,9 @@ void send_msgs(int socketfd) {
         // Checking if it's not a command:
         if(msg[0] != '\\') {
             send(socketfd, msg.c_str(), msg.length(), 0);
-            win.log_message((std::string("[Me] ") + msg).c_str());
+            win.log_message(("[you] " + msg).c_str());
         } else if(msg == "\\exit") {
-            // Closing the connection
+            // Closing the connection:
             shutdown(socketfd, SHUT_RDWR);
             close(socketfd);
             running = false;;

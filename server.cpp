@@ -93,7 +93,7 @@ int main(void) {
         client.close_connection();
 
         // Announcing the client's disconnection:
-        server_broadcast("[Server] User " + username + "disconnected"
+        server_broadcast("[Server] User " + username + " disconnected"
                          + " from the chat!", client_socketfd);
 
         std::cout << LOG_TAG << " User " << username << " "

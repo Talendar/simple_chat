@@ -11,12 +11,12 @@
     #include <functional>
 
     /**
-     * TODO
+     * Protocols supported by the server.
      */
     enum class Protocol {TCP, UDP};
 
     /**
-     * TODO 
+     * Encapsulates a socket for the purpose of communicating with a client. 
      */
     class Client {
         private:
@@ -35,8 +35,8 @@
     };
 
     /**
-     * TODO
-     * only works with internet protocols (TCP and UDP)
+     * Simple general-purpose server that can communicate with clients.
+     * Note: only works with internet protocols (TCP and UDP).
      */
     class SimpleServer {
         private:

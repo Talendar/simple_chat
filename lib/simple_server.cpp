@@ -14,7 +14,7 @@
 
 
 /**
- * TODO 
+ * Creates a server. 
  */
 SimpleServer::SimpleServer(Protocol protocol,
                            int port,
@@ -67,7 +67,8 @@ SimpleServer::SimpleServer(Protocol protocol,
 
 
 /**
- * TODO
+ * Starts the server. For each new client, the "job" function is called. The
+ * argument passed to it is the file-descriptor of the new client socket.
  */
 void SimpleServer::run(std::function<void(int)> job) {
     // Create thread to get input from server user
@@ -108,7 +109,7 @@ void SimpleServer::run(std::function<void(int)> job) {
 
 
 /**
- * Shutdown the server and close the socket
+ * Shuts down the server and closes the socket.
  */
 void SimpleServer::shutdown() {
     this->running = false;
@@ -118,7 +119,7 @@ void SimpleServer::shutdown() {
 }
 
 /**
- * Return whether the server is running or not
+ * Returns whether the server is running or not.
  * 
  * Note: thread-safe
  */
@@ -127,14 +128,14 @@ bool SimpleServer::is_running() {
 }
 
 /**
- * TODO
+ * New client.
  */
 Client::Client(int socketfd, int recv_buffer_len) : socketfd(socketfd),
                                                     recv_buffer_len(recv_buffer_len) {}
 
 
 /**
- * Close client connection
+ * Closes the connection with the client.
  */
 void Client::close_connection() {
     close(this->socketfd);
@@ -142,7 +143,7 @@ void Client::close_connection() {
 
 
 /**
- * Send message to client
+ * Sends a message to the client.
  * 
  * Note: thread-safe.
  */
@@ -157,7 +158,7 @@ int Client::send_msg(std::string msg) {
 
 
 /**
- * Receive message from client
+ * Receives a message from the client.
  * 
  * Note: thread-safe.
  */
